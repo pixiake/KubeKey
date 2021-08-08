@@ -1,0 +1,16 @@
+FROM alpine:3
+
+ENV KUBEVERSION=v1.17.9
+ENV ETCDVERSION=v3.4.13
+ENV CNIVERSION=v0.8.6
+ENV HELMVERSION=v3.2.1
+ENV ARCH=amd64
+
+WORKDIR /kubekey/${KUBEVERSION}/${ARCH}
+RUN wget https://github.com/coreos/etcd/releases/download/${ETCDVERSION}/etcd-${ETCDVERSION}-linux-${ARCH}.tar.gz && \
+    wget https://storage.googleapis.com/kubernetes-release/release/${KUBEVERSION}/bin/linux/${ARCH}/kubeadm && \
+    wget https://storage.googleapis.com/kubernetes-release/release/${KUBEVERSION}/bin/linux/${ARCH}/kubelet && \
+    wget https://storage.googleapis.com/kubernetes-release/release/${KUBEVERSION}/bin/linux/${ARCH}/kubectl && \
+    wget https://get.helm.sh/helm-${HELMVERSION}-linux-${ARCH}.tar.gz && tar -zxf helm-${HELMVERSION}-linux-${ARCH}.tar.gz && \
+    mv linux-${ARCH}/helm . && rm -rf *linux-${ARCH}* && \
+    wget https://github.com/containernetworking/plugins/releases/download/${CNIVERSION}/cni-plugins-linux-${ARCH}-${CNIVERSION}.tgz 

@@ -12,7 +12,8 @@ Explanation of parameters:
       name: xxx              # the name of chart
       repo:  xxx             # the name of chart repo (url)
       path: xxx              # the location of chart  (path)
-      values:  xxx           # specify values for chart (string list / url / path)
+      values:  xxx           # specify values for chart (string list)
+      valuesFile: xxx        # specify values file for chart (path / url)
     yaml: 
       path: []               # the location list of yaml (path / url) 
 ```
@@ -35,7 +36,7 @@ spec:
       chart: 
         name: nfs-client-provisioner
         repo: https://charts.kubesphere.io/main
-        values: /mycluster/nfs/custom-nfs-client-values.yaml  # or https://raw.githubusercontent.com/kubesphere/helm-charts/master/src/main/nfs-client-provisioner/values.yaml
+        valuesFile: /mycluster/nfs/custom-nfs-client-values.yaml  # or https://raw.githubusercontent.com/kubesphere/helm-charts/master/src/main/nfs-client-provisioner/values.yaml
         # values also supports parameter lists
         # values:
         # - storageClass.defaultClass=true

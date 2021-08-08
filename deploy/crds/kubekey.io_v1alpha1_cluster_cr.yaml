@@ -1,0 +1,7 @@
+apiVersion: kubekey.io/v1alpha1
+kind: Cluster
+metadata:
+  name: example-cluster
+spec:
+  # Add fields here
+  size: 3

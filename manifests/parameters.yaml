@@ -1,0 +1,338 @@
+apiVersion: v1
+data:
+  parameters.json: |
+    {
+      "kubernetes": {
+        "supportedVersions": ["v1.16.12", "v1.17.9", "v1.18.6"],
+        "supportedCNIs": [
+          {
+            "name": "calico",
+            "title": "Calico",
+            "description": "Calico is a pure 3-layer network solution, seamlessly integrated IaaS cloud architecture, capable of providing IP communication between VMs, containers, and bare metal.",
+            "parameters": [
+              {
+                "name": "ipipMode",
+                "title": "IPIP Mode",
+                "description": "IPIP Mode to use for the IPv4 POOL created at start up (If set to a value other than Never, vxlanMode should be set to \"Never\").",
+                "default": "Always",
+                "options": ["Always", "CrossSubnet", "Never"],
+                "type": "string"
+              },
+              {
+                "name": "vxlanMode",
+                "title": "VXLAN Mode",
+                "description": "VXLAN Mode to use for the IPv4 POOL created at start up (If set to a value other than Never, ipipMode should be set to \"Never\").",
+                "default": "Never",
+                "options": ["Always", "CrossSubnet", "Never"],
+                "type": "string"
+              },
+              {
+                "name": "vethMTU",
+                "title": "Veth MTU",
+                "description": "The maximum transmission unit (MTU) setting determines the largest packet size that can be transmitted through your network.",
+                "default": 1440,
+                "type": "integer"
+              }
+            ]
+          },
+          {
+            "name": "flannel",
+            "title": "Flannel",
+            "description": "Flannel allows Docker containers created by different node hosts in the cluster to have a unique virtual IP address in the entire cluster.",
+            "parameters": [
+              {
+                "name": "backendMode",
+                "title": "Backend Mode",
+                "description": "Flannel may be paired with several different backends. Once set, the backend should not be changed at runtime.",
+                "default": "vxlan",
+                "options": ["vxlan", "host-gw", "udp"],
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "cilium",
+            "title": "Cilium",
+            "description": "eBPF-based Networking, Security, and Observability.",
+            "parameters": []
+          }
+        ]
+      },
+      "storagePlugins": [
+        {
+          "name": "local",
+          "title": "Local Volume[Use only for testing]",
+          "description": "A local volume represents a mounted local storage device such as a disk, partition or directory."
+        },
+        {
+          "name": "nfs",
+          "title": "NFS",
+          "description": "An nfs volume allows an existing NFS (Network File System) share to be mounted into your Pod.",
+          "template": {
+            "name": "nfs-client",
+            "namespace": "kube-system",
+            "sources": {
+              "chart": {
+                "name": "nfs-client-provisioner",
+                "path": "/home/kubekey/addons",
+                "values": [
+                  "storageClass.defaultClass=true",
+                  "image.repository=${spec.registry.privateRegistry}kubesphere/nfs-client-provisioner"
+                ]
+              }
+            }
+          },
+          "parameters": [
+            {
+              "name": "nfs.server",
+              "title": "NFS Server",
+              "description": "Hostname of the NFS server(ip or hostname). Required.",
+              "default": "",
+              "type": "string"
+            },
+            {
+              "name": "nfs.path",
+              "title": "NFS Path",
+              "description": "Basepath of the mount point. For example, '/mnt/kube'. Required",
+              "default": "",
+              "type": "string"
+            }
+          ]
+        }
+      ],
+      "kubesphere": {
+        "template": {
+          "name": "ks-installer",
+          "namespace": "kubesphere-system",
+          "sources": {
+            "chart": {
+              "name": "ks-installer",
+              "path": "/home/kubekey/addons",
+              "values": [
+                "registry=${spec.registry.privateRegistry}"
+              ]
+            }
+          }
+        },
+        "components": [
+          {
+            "name": "common",
+            "title": "Common Settings",
+            "parameters": [
+              {
+                "name": "redisVolumeSize",
+                "title": "Redis Volume Size",
+                "description": "Redis Storage size.",
+                "default": "2Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "mysqlVolumeSize",
+                "title": "MySQL Volume Size",
+                "description": "MySQL Storage size.",
+                "default": "20Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "minioVolumeSize",
+                "title": "Minio Volume Size",
+                "description": "Minio PVC size.",
+                "default": "20Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "etcdVolumeSize",
+                "title": "etcd Volume Size",
+                "description": "etcd Storage size.",
+                "default": "20Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "openldapVolumeSize",
+                "title": "Openldap Volume Size",
+                "description": "Openldap Storage size.",
+                "default": "2Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "elasticsearchMasterVolumeSize",
+                "title": "Elasticsearch Master Volume Size",
+                "description": "Volume size of Elasticsearch master nodes.",
+                "default": "4Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "elasticsearchDataVolumeSize",
+                "title": "Elasticsearch Data Volume Size",
+                "description": "Volume size of Elasticsearch data nodes.",
+                "default": "20Gi",
+                "unit": "Gi",
+                "type": "integer"
+              },
+              {
+                "name": "logMaxAge",
+                "title": "Log Max Age",
+                "description": "Log retention time (day) in built-in Elasticsearch.",
+                "default": 7,
+                "type": "integer"
+              }
+            ]
+          },
+          {
+            "name": "alerting",
+            "title": "Alerting",
+            "description": "It enables Users to customize alerting policies to send messages to receivers in time with different time intervals and alerting levels to choose from.",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "auditing",
+            "title": "Auditing",
+            "description": "It provides a security-relevant chronological set of records，recording the sequence of activities happened in platform, initiated by different tenants",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "devops",
+            "title": "DevOps",
+            "description": "It provides out-of-box CI/CD system based on Jenkins, and automated workflow tools including Source-to-Image & Binary-to-Image",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              },
+              {
+                "name": "jenkinsVolumeSize",
+                "title": "Jenkins Volume Size",
+                "description": "Jenkins volume size",
+                "default": "8Gi",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "events",
+            "title": "Events",
+            "description": "It provides a graphical web console for Kubernetes Events exporting, filtering and alerting in multi-tenant Kubernetes clusters.",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "logging",
+            "title": "Logging",
+            "description": "Flexible logging functions are provided for log query, collection and management in a unified console. Additional log collectors can be added, such as Elasticsearch, Kafka and Fluentd.",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "metrics_server",
+            "title": "Metrics Server",
+            "description": "IT enables HPA (Horizontal Pod Autoscaler).",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "monitoring",
+            "title": "Monitoring",
+            "parameters": [
+              {
+                "name": "prometheusVolumeSize",
+                "title": "Prometheus Volume size",
+                "description": "Prometheus PVC size.",
+                "default": "20Gi",
+                "unit": "Gi",
+                "type": "integer"
+              }
+            ]
+          },
+          {
+            "name": "multicluster",
+            "title": "Multi Cluster",
+            "parameters": [
+              {
+                "name": "clusterRole",
+                "title": "Cluster Role",
+                "description": "You can install a solo cluster, or specify it as the role of host or member cluster.",
+                "default": "member",
+                "options": ["host", "member"],
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "notification",
+            "title": "Notification",
+            "description": "Email Notification support for the legacy alerting system, should be enabled/disabled together with the above alerting option.",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "openpitrix",
+            "title": "Openpitrix",
+            "description": "It provides an application store for Helm-based applications, and offer application lifecycle management.",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "servicemesh",
+            "title": "Service Mesh",
+            "description": "It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology.",
+            "parameters": [
+              {
+                "name": "enabled",
+                "default": false,
+                "type": "bool"
+              }
+            ]
+          }
+        ]
+      }
+    }
+kind: ConfigMap
+metadata:
+  annotations:
+    kubesphere.io/creator: admin
+  name: kubekey-parameters
+  namespace: kubekey-system

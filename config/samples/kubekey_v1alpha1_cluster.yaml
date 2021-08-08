@@ -1,0 +1,30 @@
+apiVersion: kubekey.kubesphere.io/v1alpha1
+kind: Cluster
+metadata:
+  name: cluster-sample
+spec:
+  hosts:
+    - {name: node1, address: 192.168.6.2, internalAddress: 192.168.6.2, user: ubuntu, password: Qcloud@123}
+  roleGroups:
+    etcd:
+      - node1
+    master:
+      - node1
+    worker:
+      - node1
+  controlPlaneEndpoint:
+    domain: lb.kubesphere.local
+    address: ""
+    port: "6443"
+  kubernetes:
+    version: v1.19.8
+    imageRepo: kubesphere
+    clusterName: cluster.local
+  network:
+    plugin: calico
+    kubePodsCIDR: 10.233.64.0/18
+    kubeServiceCIDR: 10.233.0.0/18
+  registry:
+    privateRegistry: ""
+  addons: []
+
